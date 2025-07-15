@@ -42,7 +42,7 @@ public class JdbcRewardRepositoryTests {
 	@BeforeEach
 	public void setUp() throws Exception {
 		dataSource = createTestDataSource();
-		repository = new JdbcRewardRepository(dataSource);
+		repository = new JdbcRewardRepository(createTestJdbcTemplate());
 		jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 
@@ -68,15 +68,13 @@ public class JdbcRewardRepositoryTests {
 
 		//	TODO-02: Use JdbcTemplate to query for a map of all column values
 		//	of a row in the T_REWARD table based on the confirmationNumber.
-		//  - Use "SELECT * FROM T_REWARD WHERE CONFIRMATION_NUMBER = ?" as SQL statement
+		Map<String, Object> values = jdbcTemplate.queryForMap("SELECT * FROM T_REWARD WHERE CONFIRMATION_NUMBER = ?", confirmation.getConfirmationNumber());
+		verifyInsertedValues(confirmation, dining, values);
 		//	- After making the changes, execute this test class to verify
 		//	  its successful execution.
 		//	  (If you are using Gradle, comment out the test exclude in
 		//    the build.gradle file.)
 		//
-		
-		Map<String, Object> values = null;
-		verifyInsertedValues(confirmation, dining, values);
 	}
 
 	private void verifyInsertedValues(RewardConfirmation confirmation, Dining dining, Map<String, Object> values) {
@@ -91,8 +89,8 @@ public class JdbcRewardRepositoryTests {
 
 	private int getRewardCount() throws SQLException {
 		// TODO-01: Use JdbcTemplate to query for the number of rows in the T_REWARD table
-		// - Use "SELECT count(*) FROM T_REWARD" as SQL statement
-		return -1;
+		String sql = "SELECT count(*) FROM T_REWARD";
+		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
 	private DataSource createTestDataSource() {
@@ -101,5 +99,9 @@ public class JdbcRewardRepositoryTests {
 			.addScript("/rewards/testdb/schema.sql")
 			.addScript("/rewards/testdb/data.sql")
 			.build();
+	}
+
+	private JdbcTemplate createTestJdbcTemplate() {
+		return new JdbcTemplate(createTestDataSource());
 	}
 }
