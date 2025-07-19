@@ -126,4 +126,16 @@ public class AccountClientTests {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+    @Test
+    public void createAccountNotPermittedForUSERtest() {
+        String number = String.format("12345%4d", random.nextInt(10000));
+        Account account = new Account(number, "John Doe");
+        account.addBeneficiary("Jane Doe");
+        ResponseEntity<Void> responseEntity
+                = restTemplate.withBasicAuth("user", "user")
+                .postForEntity("/accounts", account, Void.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
 }

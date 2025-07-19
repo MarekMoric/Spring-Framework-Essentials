@@ -254,6 +254,15 @@ public class AccountControllerTests {
         verify(accountManager).getAccount(0L);
     }
 
+    @Test
+    @WithMockUser(roles = {"USER"})
+    public void postOperationFailWithUSERrole() throws Exception{
+        Account account = new Account("1234567890", "John Doe");
+
+        mockMvc.perform(post("/accounts", account))
+                .andExpect(status().isForbidden());
+    }
+
     protected static String asJsonString(final Object obj) {
         try {
             final ObjectMapper mapper = new ObjectMapper();
